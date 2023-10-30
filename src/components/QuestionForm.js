@@ -1,25 +1,42 @@
 import React, { useState } from "react";
 
-function QuestionForm(props) {
+function QuestionForm({ onQuestionSubmit }) {
   const [formData, setFormData] = useState({
     prompt: "",
-    answer1: "",
-    answer2: "",
-    answer3: "",
-    answer4: "",
+    answers: ["", "", "", ""],
     correctIndex: 0,
   });
 
   function handleChange(event) {
-    setFormData({
-      ...formData,
-      [event.target.name]: event.target.value,
-    });
+    const { name, value } = event.target;
+    if (name.startsWith("answer")) {
+      const index = parseInt(name.substring(6), 10) - 1;
+      const updatedAnswers = [...formData.answers];
+      updatedAnswers[index] = value;
+      setFormData({
+        ...formData,
+        answers: updatedAnswers,
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   }
 
   function handleSubmit(event) {
     event.preventDefault();
-    console.log(formData);
+
+    // Send the form data to the parent component for submission
+    onQuestionSubmit(formData);
+
+    // Reset the form fields
+    setFormData({
+      prompt: "",
+      answers: ["", "", "", ""],
+      correctIndex: 0,
+    });
   }
 
   return (
@@ -40,7 +57,7 @@ function QuestionForm(props) {
           <input
             type="text"
             name="answer1"
-            value={formData.answer1}
+            value={formData.answers[0]}
             onChange={handleChange}
           />
         </label>
@@ -49,7 +66,7 @@ function QuestionForm(props) {
           <input
             type="text"
             name="answer2"
-            value={formData.answer2}
+            value={formData.answers[1]}
             onChange={handleChange}
           />
         </label>
@@ -58,7 +75,7 @@ function QuestionForm(props) {
           <input
             type="text"
             name="answer3"
-            value={formData.answer3}
+            value={formData.answers[2]}
             onChange={handleChange}
           />
         </label>
@@ -67,7 +84,7 @@ function QuestionForm(props) {
           <input
             type="text"
             name="answer4"
-            value={formData.answer4}
+            value={formData.answers[3]}
             onChange={handleChange}
           />
         </label>
@@ -78,10 +95,11 @@ function QuestionForm(props) {
             value={formData.correctIndex}
             onChange={handleChange}
           >
-            <option value="0">{formData.answer1}</option>
-            <option value="1">{formData.answer2}</option>
-            <option value="2">{formData.answer3}</option>
-            <option value="3">{formData.answer4}</option>
+            {formData.answers.map((answer, index) => (
+              <option key={index} value={index}>
+                {answer}
+              </option>
+            ))}
           </select>
         </label>
         <button type="submit">Add Question</button>
